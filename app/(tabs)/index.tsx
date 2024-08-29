@@ -9,13 +9,32 @@ import {
 import React from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { LineChart } from "react-native-gifted-charts";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import useBLE from "@/hooks/useBle";
 
 const HomeScreen = () => {
   const data = [{ value: 15 }, { value: 30 }, { value: 26 }, { value: 40 }];
+  const { top } = useSafeAreaInsets();
+  const {
+    requestPermissions,
+    scanForPeripherals,
+    allDevices,
+    connectToDevice,
+    connectedDevice,
+    heartRate,
+    disconnectFromDevice,
+  } = useBLE();
+
+  const scanForDevices = async () => {
+    const isPermissionsEnabled = await requestPermissions();
+    if (isPermissionsEnabled) {
+      scanForPeripherals();
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.topWrapper}>
+      <View style={[styles.topWrapper, { marginTop: top }]}>
         <Text style={styles.topWrapperText}>Let's start your day</Text>
 
         <TouchableOpacity
@@ -120,7 +139,7 @@ const HomeScreen = () => {
           </View>
           <TouchableOpacity
             style={{
-              padding: 20,
+              padding: 18,
               backgroundColor: "#F2F2F2",
               borderRadius: 20,
             }}
@@ -130,6 +149,10 @@ const HomeScreen = () => {
             </Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={styles.btn} onPress={() => {}}>
+          <Text style={styles.btnPrimaryText}>Connect to device</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -184,5 +207,20 @@ const styles = StyleSheet.create({
     borderColor: "#a3a3a3",
     borderRadius: 15,
     paddingVertical: 30,
+  },
+  btn: {
+    backgroundColor: "red",
+    marginVertical: 4,
+    height: 50,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    marginTop: 28,
+  },
+  btnPrimaryText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
