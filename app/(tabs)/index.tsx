@@ -1,5 +1,6 @@
 import {
   Image,
+  Linking,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -186,6 +187,10 @@ const HomeScreen = () => {
                 padding: 18,
                 backgroundColor: "#F2F2F2",
                 borderRadius: 20,
+              }}
+              onPress={() => {
+                const phoneNumber = "tel:080776654340";
+                Linking.openURL(phoneNumber);
               }}
             >
               <Text style={{ fontSize: 24, fontWeight: "600" }}>

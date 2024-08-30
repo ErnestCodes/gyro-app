@@ -7,7 +7,6 @@ import {
   View,
 } from "react-native";
 import React, { FC, useCallback } from "react";
-import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { Device } from "react-native-ble-plx";
 
 type DeviceModalListItemProps = {
