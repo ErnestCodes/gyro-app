@@ -29,7 +29,7 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
 
   return (
     <TouchableOpacity onPress={connectAndCloseModal} style={styles.ctaButton}>
-      <Text style={styles.ctaButtonText}>{item.item.name}</Text>
+      <Text style={styles.ctaButtonText}>{"Text"}</Text>
     </TouchableOpacity>
   );
 };
@@ -49,13 +49,26 @@ const DeviceModal = (props: DeviceModalProps) => {
     [connectToPeripheral]
   );
 
+  const emptyState = () => (
+    <View>
+      <Text style={{ fontStyle: "italic" }}>No device found...</Text>
+    </View>
+  );
   return (
-    <View style={{ alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ fontSize: 16 }}>Tap to connect to device</Text>
+    <View
+      style={{
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Text style={{ fontSize: 16, fontWeight: 500 }}>
+        Tap to connect device
+      </Text>
       <FlatList
         contentContainerStyle={styles.modalFlatlistContiner}
         data={devices}
         renderItem={renderDeviceModalListItem}
+        ListEmptyComponent={emptyState}
       />
     </View>
   );
@@ -69,13 +82,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   ctaButton: {
-    backgroundColor: "#FF6060",
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: "green",
+    marginVertical: 4,
     height: 50,
-    marginHorizontal: 20,
-    marginBottom: 5,
-    borderRadius: 8,
+    borderRadius: 12,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    marginTop: 28,
   },
   ctaButtonText: {
     fontSize: 18,
