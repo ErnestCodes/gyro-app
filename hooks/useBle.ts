@@ -22,7 +22,11 @@ interface BluetoothLowEnergyApi {
   disconnectFromDevice: () => void;
   connectedDevice: Device | null;
   allDevices: Device[];
-  heartRate: number;
+  objectTemperature: number;
+  movementStatus: string;
+  totalAcceleration: number;
+  data: any[];
+  obstacleDetected: string;
 }
 
 function useBLE(): BluetoothLowEnergyApi {
@@ -30,6 +34,12 @@ function useBLE(): BluetoothLowEnergyApi {
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [heartRate, setHeartRate] = useState<number>(0);
+
+  const [objectTemperature, setObjectTemperature] = useState<number>(0);
+  const [movementStatus, setMovementStatus] = useState<string>("Searching..");
+  const [totalAcceleration, setTotalAcceleration] = useState<number>(0);
+  const [data, setData] = useState([{ value: 0 }, { value: 0 }]);
+  const [obstacleDetected, setObstacleDetected] = useState<string>("No");
 
   const requestAndroid31Permissions = async () => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
@@ -95,6 +105,7 @@ function useBLE(): BluetoothLowEnergyApi {
       if (error) {
         console.log(error);
       }
+
       if (device && device.name?.includes("Arduino")) {
         setAllDevices((prevState: Device[]) => {
           if (!isDuplicteDevice(prevState, device)) {
@@ -116,7 +127,6 @@ function useBLE(): BluetoothLowEnergyApi {
       console.log("FAILED TO CONNECT", e);
     }
   };
-
   const disconnectFromDevice = () => {
     if (connectedDevice) {
       bleManager.cancelDeviceConnection(connectedDevice.id);
@@ -138,6 +148,22 @@ function useBLE(): BluetoothLowEnergyApi {
     }
 
     const rawData = base64.decode(characteristic.value);
+    const userInfo = JSON.parse(rawData);
+    let ax = Number(userInfo?.AccX) & 0x01;
+    let ay = Number(userInfo?.AccY) & 0x01;
+
+    let pX = Number(userInfo?.positionX) & 0x01;
+    let pY = Number(userInfo?.positionY) & 0x01;
+
+    let aTotal = Math.sqrt(ax * ax + ay * ay);
+
+    setObstacleDetected(userInfo?.obstacleDetected);
+    const data = [{ value: pX }, { value: pY }];
+    setData(data);
+    setTotalAcceleration(aTotal);
+    setObjectTemperature(Number(userInfo?.objectTemperature) & 0x01);
+    setMovementStatus(userInfo?.movement as string);
+
     let innerHeartRate: number = -1;
 
     const firstBitValue: number = Number(rawData) & 0x01;
@@ -172,7 +198,11 @@ function useBLE(): BluetoothLowEnergyApi {
     allDevices,
     connectedDevice,
     disconnectFromDevice,
-    heartRate,
+    objectTemperature,
+    obstacleDetected,
+    movementStatus,
+    totalAcceleration,
+    data,
   };
 }
 
