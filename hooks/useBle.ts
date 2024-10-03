@@ -106,7 +106,7 @@ function useBLE(): BluetoothLowEnergyApi {
         console.log(error);
       }
 
-      if (device && device.name?.includes("Arduino")) {
+      if (device && device.id === "98:D3:31:FC:43:F9") {
         setAllDevices((prevState: Device[]) => {
           if (!isDuplicteDevice(prevState, device)) {
             return [...prevState, device];

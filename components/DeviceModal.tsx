@@ -28,7 +28,7 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
 
   return (
     <TouchableOpacity onPress={connectAndCloseModal} style={styles.ctaButton}>
-      <Text style={styles.ctaButtonText}>{"Text"}</Text>
+      <Text style={styles.ctaButtonText}>HC-05</Text>
     </TouchableOpacity>
   );
 };

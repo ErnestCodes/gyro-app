@@ -26,7 +26,7 @@ const HomeScreen = () => {
   const { top } = useSafeAreaInsets();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ["35%"], []);
+  const snapPoints = useMemo(() => ["38%"], []);
   const {
     requestPermissions,
     scanForPeripherals,
@@ -52,6 +52,7 @@ const HomeScreen = () => {
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
+    console.log(isPermissionsEnabled);
     if (isPermissionsEnabled) {
       scanForPeripherals();
       bottomSheetModalRef.current?.present();
