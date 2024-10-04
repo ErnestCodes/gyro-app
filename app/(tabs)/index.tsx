@@ -226,6 +226,7 @@ const HomeScreen = () => {
         <BottomSheetView>
           <DeviceModal
             connectToPeripheral={connectToDevice}
+            onCloseModal={() => bottomSheetModalRef?.current?.dismiss()}
             devices={allDevices}
           />
         </BottomSheetView>

@@ -12,18 +12,21 @@ import { Device } from "react-native-ble-plx";
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
   connectToPeripheral: (device: Device) => void;
+  closeModal: () => void;
 };
 
 type DeviceModalProps = {
   devices: Device[];
   connectToPeripheral: (device: Device) => void;
+  onCloseModal: () => void;
 };
 
 const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
-  const { item, connectToPeripheral } = props;
+  const { item, connectToPeripheral, closeModal } = props;
 
   const connectAndCloseModal = useCallback(() => {
     connectToPeripheral(item.item);
+    closeModal();
   }, [connectToPeripheral, item.item]);
 
   return (
@@ -34,7 +37,7 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
 };
 
 const DeviceModal = (props: DeviceModalProps) => {
-  const { devices, connectToPeripheral } = props;
+  const { devices, connectToPeripheral, onCloseModal } = props;
 
   const renderDeviceModalListItem = useCallback(
     (item: ListRenderItemInfo<Device>) => {
@@ -42,6 +45,7 @@ const DeviceModal = (props: DeviceModalProps) => {
         <DeviceModalListItem
           item={item}
           connectToPeripheral={connectToPeripheral}
+          closeModal={onCloseModal}
         />
       );
     },
