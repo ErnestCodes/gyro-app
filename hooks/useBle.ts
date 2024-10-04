@@ -1,23 +1,17 @@
-/* eslint-disable no-bitwise */
-import { useMemo, useState } from "react";
-import { PermissionsAndroid, Platform } from "react-native";
-import {
-  BleError,
-  BleManager,
-  Characteristic,
-  Device,
-} from "react-native-ble-plx";
+import { useState } from "react";
+import { Alert, PermissionsAndroid, Platform } from "react-native";
+import RNBluetoothClassic from "react-native-bluetooth-classic"; // Import Bluetooth Classic
 
-import * as ExpoDevice from "expo-device";
+export interface Device {
+  id: string; // The device's unique identifier
+  name: string; // The device's name
+  address: string; // The device's MAC address
+  // You can add more properties as needed based on what the library returns
+}
 
-import base64 from "react-native-base64";
-
-const SERVICE_UUID = "0000180d-0000-1000-8000-00805f9b34fb";
-const SERVICE_CHARACTERISTIC = "00002a37-0000-1000-8000-00805f9b34fb";
-
-interface BluetoothLowEnergyApi {
+interface BluetoothClassicApi {
   requestPermissions(): Promise<boolean>;
-  scanForPeripherals(): void;
+  scanForDevices(): void;
   connectToDevice: (deviceId: Device) => Promise<void>;
   disconnectFromDevice: () => void;
   connectedDevice: Device | null;
@@ -29,11 +23,9 @@ interface BluetoothLowEnergyApi {
   obstacleDetected: string;
 }
 
-function useBLE(): BluetoothLowEnergyApi {
-  const bleManager = useMemo(() => new BleManager(), []);
-  const [allDevices, setAllDevices] = useState<Device[]>([]);
-  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [heartRate, setHeartRate] = useState<number>(0);
+function useBle(): BluetoothClassicApi {
+  const [allDevices, setAllDevices] = useState<any[]>([]);
+  const [connectedDevice, setConnectedDevice] = useState<any | null>(null);
 
   const [objectTemperature, setObjectTemperature] = useState<number>(0);
   const [movementStatus, setMovementStatus] = useState<string>("Searching..");
@@ -41,169 +33,108 @@ function useBLE(): BluetoothLowEnergyApi {
   const [data, setData] = useState([{ value: 0 }, { value: 0 }]);
   const [obstacleDetected, setObstacleDetected] = useState<string>("No");
 
-  const requestAndroid31Permissions = async () => {
-    const bluetoothScanPermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-      {
-        title: "Location Permission",
-        message: "Bluetooth Low Energy requires Location",
-        buttonPositive: "OK",
-      }
-    );
-    const bluetoothConnectPermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-      {
-        title: "Location Permission",
-        message: "Bluetooth Low Energy requires Location",
-        buttonPositive: "OK",
-      }
-    );
-    const fineLocationPermission = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: "Location Permission",
-        message: "Bluetooth Low Energy requires Location",
-        buttonPositive: "OK",
-      }
-    );
-
-    return (
-      bluetoothScanPermission === "granted" &&
-      bluetoothConnectPermission === "granted" &&
-      fineLocationPermission === "granted"
-    );
-  };
-
+  // Request permissions (Android)
   const requestPermissions = async () => {
     if (Platform.OS === "android") {
-      if ((ExpoDevice.platformApiLevel ?? -1) < 31) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: "Location Permission",
-            message: "Bluetooth Low Energy requires Location",
-            buttonPositive: "OK",
-          }
-        );
-        return granted === PermissionsAndroid.RESULTS.GRANTED;
-      } else {
-        const isAndroid31PermissionsGranted =
-          await requestAndroid31Permissions();
-
-        return isAndroid31PermissionsGranted;
-      }
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: "Location Permission",
+          message: "Bluetooth Classic requires Location",
+          buttonPositive: "OK",
+        }
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
     } else {
       return true;
     }
   };
 
-  const isDuplicteDevice = (devices: Device[], nextDevice: Device) =>
-    devices.findIndex((device) => nextDevice.id === device.id) > -1;
-
-  const scanForPeripherals = () =>
-    bleManager.startDeviceScan(null, null, (error, device) => {
-      if (error) {
-        console.log(error);
-      }
-
-      if (device && device.id === "98:D3:31:FC:43:F9") {
-        setAllDevices((prevState: Device[]) => {
-          if (!isDuplicteDevice(prevState, device)) {
-            return [...prevState, device];
-          }
-          return prevState;
-        });
-      }
-    });
-
-  const connectToDevice = async (device: Device) => {
+  // Scan for nearby Bluetooth Classic devices
+  const scanForDevices = async () => {
     try {
-      const deviceConnection = await bleManager.connectToDevice(device.id);
-      setConnectedDevice(deviceConnection);
-      await deviceConnection.discoverAllServicesAndCharacteristics();
-      bleManager.stopDeviceScan();
-      startStreamingData(deviceConnection);
-    } catch (e) {
-      console.log("FAILED TO CONNECT", e);
-    }
-  };
-  const disconnectFromDevice = () => {
-    if (connectedDevice) {
-      bleManager.cancelDeviceConnection(connectedDevice.id);
-      setConnectedDevice(null);
-      setHeartRate(0);
-    }
-  };
+      const unpaired = await RNBluetoothClassic.startDiscovery();
+      const paired = await RNBluetoothClassic.getBondedDevices();
+      const devices = [...paired, ...unpaired];
 
-  const onUpdate = (
-    error: BleError | null,
-    characteristic: Characteristic | null
-  ) => {
-    if (error) {
-      console.log(error);
-      return -1;
-    } else if (!characteristic?.value) {
-      console.log("No Data was recieved");
-      return -1;
-    }
-
-    const rawData = base64.decode(characteristic.value);
-    const userInfo = JSON.parse(rawData);
-    let ax = Number(userInfo?.AccX) & 0x01;
-    let ay = Number(userInfo?.AccY) & 0x01;
-
-    let pX = Number(userInfo?.positionX) & 0x01;
-    let pY = Number(userInfo?.positionY) & 0x01;
-
-    let aTotal = Math.sqrt(ax * ax + ay * ay);
-
-    setObstacleDetected(userInfo?.obstacleDetected);
-    const data = [{ value: pX }, { value: pY }];
-    setData(data);
-    setTotalAcceleration(aTotal);
-    setObjectTemperature(Number(userInfo?.objectTemperature) & 0x01);
-    setMovementStatus(userInfo?.movement as string);
-
-    let innerHeartRate: number = -1;
-
-    const firstBitValue: number = Number(rawData) & 0x01;
-
-    if (firstBitValue === 0) {
-      innerHeartRate = rawData[1].charCodeAt(0);
-    } else {
-      innerHeartRate =
-        Number(rawData[1].charCodeAt(0) << 8) +
-        Number(rawData[2].charCodeAt(2));
-    }
-
-    setHeartRate(innerHeartRate);
-  };
-
-  const startStreamingData = async (device: Device) => {
-    if (device) {
-      device.monitorCharacteristicForService(
-        SERVICE_UUID,
-        SERVICE_CHARACTERISTIC,
-        onUpdate
+      const hc05Devices = devices.filter(
+        (device) =>
+          device.name === "HC-05" || device.address === "98:D3:31:FC:43:F9" // Replace with actual MAC address if needed
       );
-    } else {
-      console.log("No Device Connected");
+
+      setAllDevices(hc05Devices.length > 0 ? hc05Devices : []);
+    } catch (error) {
+      console.error("Error scanning for devices:", error);
+    }
+  };
+
+  // Connect to the HC-05 device by ID
+  const connectToDevice = async (connectedDevice: Device) => {
+    try {
+      const device = await RNBluetoothClassic.connectToDevice(
+        connectedDevice?.id
+      );
+      setConnectedDevice(device);
+      listenForData(device);
+      Alert.alert("Device connected!");
+    } catch (error) {
+      Alert.alert("Error connecting to device");
+      console.log("Error connecting to device:", error);
+    }
+  };
+
+  // Disconnect from the connected device
+  const disconnectFromDevice = async () => {
+    if (connectedDevice) {
+      await RNBluetoothClassic.disconnectFromDevice(connectedDevice.id);
+      setConnectedDevice(null);
+    }
+  };
+
+  // Listen for incoming data from the HC-05
+  const listenForData = (device: any) => {
+    device.onDataReceived((data: any) => {
+      console.log("Data received:", data.data);
+      processData(data.data); // Process the data received from Arduino
+    });
+  };
+
+  // Function to process the data coming from the HC-05
+  const processData = (rawData: string) => {
+    try {
+      const userInfo = JSON.parse(rawData);
+      let ax = Number(userInfo?.AccX) & 0x01;
+      let ay = Number(userInfo?.AccY) & 0x01;
+
+      let pX = Number(userInfo?.positionX) & 0x01;
+      let pY = Number(userInfo?.positionY) & 0x01;
+
+      let aTotal = Math.sqrt(ax * ax + ay * ay);
+
+      setObstacleDetected(userInfo?.obstacleDetected);
+      const data = [{ value: pX }, { value: pY }];
+      setData(data);
+      setTotalAcceleration(aTotal);
+      setObjectTemperature(Number(userInfo?.objectTemperature) & 0x01);
+      setMovementStatus(userInfo?.movement as string);
+    } catch (error) {
+      console.error("Error processing data:", error);
     }
   };
 
   return {
-    scanForPeripherals,
+    scanForDevices,
     requestPermissions,
     connectToDevice,
+    disconnectFromDevice,
     allDevices,
     connectedDevice,
-    disconnectFromDevice,
     objectTemperature,
-    obstacleDetected,
     movementStatus,
     totalAcceleration,
     data,
+    obstacleDetected,
   };
 }
 
-export default useBLE;
+export default useBle;

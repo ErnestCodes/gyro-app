@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 import React, { FC, useCallback } from "react";
-import { Device } from "react-native-ble-plx";
+import { Device } from "@/hooks/useBle";
 
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
@@ -31,7 +31,7 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = (props) => {
 
   return (
     <TouchableOpacity onPress={connectAndCloseModal} style={styles.ctaButton}>
-      <Text style={styles.ctaButtonText}>HC-05</Text>
+      <Text style={styles.ctaButtonText}>{item.item.name}</Text>
     </TouchableOpacity>
   );
 };
@@ -72,6 +72,7 @@ const DeviceModal = (props: DeviceModalProps) => {
         data={devices}
         renderItem={renderDeviceModalListItem}
         ListEmptyComponent={emptyState}
+        keyExtractor={(item) => item.id}
       />
     </View>
   );

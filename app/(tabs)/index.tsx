@@ -29,7 +29,7 @@ const HomeScreen = () => {
   const snapPoints = useMemo(() => ["38%"], []);
   const {
     requestPermissions,
-    scanForPeripherals,
+    scanForDevices,
     allDevices,
     connectToDevice,
     connectedDevice,
@@ -50,11 +50,11 @@ const HomeScreen = () => {
     }
   }, [obstacleDetected]);
 
-  const scanForDevices = async () => {
+  const scanDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
     // console.log(isPermissionsEnabled);
     if (isPermissionsEnabled) {
-      scanForPeripherals();
+      scanForDevices();
       bottomSheetModalRef.current?.present();
     }
   };
@@ -201,7 +201,7 @@ const HomeScreen = () => {
         </View>
 
         {!connectedDevice && (
-          <TouchableOpacity style={styles.btn} onPress={scanForDevices}>
+          <TouchableOpacity style={styles.btn} onPress={scanDevices}>
             <Text style={styles.btnPrimaryText}>Connect to device</Text>
           </TouchableOpacity>
         )}
