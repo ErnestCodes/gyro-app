@@ -52,7 +52,7 @@ const HomeScreen = () => {
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
-    console.log(isPermissionsEnabled);
+    // console.log(isPermissionsEnabled);
     if (isPermissionsEnabled) {
       scanForPeripherals();
       bottomSheetModalRef.current?.present();
