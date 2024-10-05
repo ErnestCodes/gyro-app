@@ -57,12 +57,12 @@ function useBle(): BluetoothClassicApi {
       const paired = await RNBluetoothClassic.getBondedDevices();
       const devices = [...paired, ...unpaired];
 
-      const hc05Devices = devices.filter(
-        (device) =>
-          device.name === "HC-05" || device.address === "98:D3:31:FC:43:F9" // Replace with actual MAC address if needed
-      );
+      // const hc05Devices = devices.filter(
+      //   (device) =>
+      //     device.name === "HC-05" || device.address === "98:D3:31:FC:43:F9" // Replace with actual MAC address if needed
+      // );
 
-      setAllDevices(hc05Devices.length > 0 ? hc05Devices : []);
+      setAllDevices(devices);
     } catch (error) {
       console.error("Error scanning for devices:", error);
     }

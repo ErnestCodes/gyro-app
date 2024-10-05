@@ -1,6 +1,7 @@
 import {
   FlatList,
   ListRenderItemInfo,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -8,6 +9,7 @@ import {
 } from "react-native";
 import React, { FC, useCallback } from "react";
 import { Device } from "@/hooks/useBle";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
@@ -58,23 +60,17 @@ const DeviceModal = (props: DeviceModalProps) => {
     </View>
   );
   return (
-    <View
-      style={{
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <Text style={{ fontSize: 16, fontWeight: 500 }}>
-        Tap to connect device
-      </Text>
-      <FlatList
-        contentContainerStyle={styles.modalFlatlistContiner}
-        data={devices}
-        renderItem={renderDeviceModalListItem}
-        ListEmptyComponent={emptyState}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
+    <BottomSheetFlatList
+      scrollEnabled={true}
+      contentContainerStyle={styles.modalFlatlistContiner}
+      showsVerticalScrollIndicator={false}
+      data={devices}
+      renderItem={renderDeviceModalListItem}
+      maxToRenderPerBatch={3}
+      ListEmptyComponent={emptyState}
+      keyExtractor={(item) => item.id}
+      windowSize={7}
+    />
   );
 };
 
@@ -84,6 +80,7 @@ const styles = StyleSheet.create({
   modalFlatlistContiner: {
     flex: 1,
     justifyContent: "center",
+    paddingHorizontal: 20,
   },
   ctaButton: {
     backgroundColor: "green",

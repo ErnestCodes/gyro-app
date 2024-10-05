@@ -26,7 +26,7 @@ const HomeScreen = () => {
   const { top } = useSafeAreaInsets();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ["38%"], []);
+  const snapPoints = useMemo(() => ["65%"], []);
   const {
     requestPermissions,
     scanForDevices,
@@ -221,15 +221,13 @@ const HomeScreen = () => {
         snapPoints={snapPoints}
         enableOverDrag={false}
         index={0}
-        enablePanDownToClose
+        enablePanDownToClose={false}
       >
-        <BottomSheetView>
-          <DeviceModal
-            connectToPeripheral={connectToDevice}
-            onCloseModal={() => bottomSheetModalRef?.current?.dismiss()}
-            devices={allDevices}
-          />
-        </BottomSheetView>
+        <DeviceModal
+          connectToPeripheral={connectToDevice}
+          onCloseModal={() => bottomSheetModalRef?.current?.dismiss()}
+          devices={allDevices}
+        />
       </BottomSheetModal>
     </ScrollView>
   );
