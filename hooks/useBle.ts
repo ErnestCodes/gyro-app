@@ -19,8 +19,11 @@ interface BluetoothClassicApi {
   objectTemperature: number;
   movementStatus: string;
   totalAcceleration: number;
-  data: any[];
   obstacleDetected: string;
+  stepCount: number;
+  caneHeld: string;
+  px: number;
+  py: number;
 }
 
 function useBle(): BluetoothClassicApi {
@@ -30,8 +33,11 @@ function useBle(): BluetoothClassicApi {
   const [objectTemperature, setObjectTemperature] = useState<number>(0);
   const [movementStatus, setMovementStatus] = useState<string>("Searching..");
   const [totalAcceleration, setTotalAcceleration] = useState<number>(0);
-  const [data, setData] = useState([{ value: 0 }, { value: 0 }]);
   const [obstacleDetected, setObstacleDetected] = useState<string>("No");
+  const [stepCount, setStepCount] = useState<number>(0);
+  const [px, setPx] = useState<number>(0);
+  const [py, setPy] = useState<number>(0);
+  const [caneHeld, setCaneHeld] = useState<string>("No");
 
   // Request permissions (Android)
   const requestPermissions = async () => {
@@ -103,19 +109,18 @@ function useBle(): BluetoothClassicApi {
   const processData = (rawData: string) => {
     try {
       const userInfo = JSON.parse(rawData);
-      let ax = Number(userInfo?.AccX) & 0x01;
-      let ay = Number(userInfo?.AccY) & 0x01;
-
-      let pX = Number(userInfo?.positionX) & 0x01;
-      let pY = Number(userInfo?.positionY) & 0x01;
+      let ax = Number(userInfo?.AccX);
+      let ay = Number(userInfo?.AccY);
 
       let aTotal = Math.sqrt(ax * ax + ay * ay);
 
       setObstacleDetected(userInfo?.obstacleDetected);
-      const data = [{ value: pX }, { value: pY }];
-      setData(data);
+      setPx(Number(userInfo?.positionX));
+      setPy(Number(userInfo?.positionY));
       setTotalAcceleration(aTotal);
-      setObjectTemperature(Number(userInfo?.objectTemperature) & 0x01);
+      setObjectTemperature(Number(userInfo?.objectTemperature));
+      setCaneHeld(userInfo?.caneHeld as string);
+      setStepCount(Number(userInfo?.stepCount));
       setMovementStatus(userInfo?.movement as string);
     } catch (error) {
       console.error("Error processing data:", error);
@@ -132,8 +137,11 @@ function useBle(): BluetoothClassicApi {
     objectTemperature,
     movementStatus,
     totalAcceleration,
-    data,
     obstacleDetected,
+    stepCount,
+    caneHeld,
+    px,
+    py,
   };
 }
 

@@ -1,8 +1,10 @@
+import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { TouchableOpacity } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 
@@ -10,6 +12,7 @@ import "react-native-reanimated";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const router = useRouter();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -29,6 +32,20 @@ export default function RootLayout() {
       <BottomSheetModalProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(modals)/connect"
+            options={{
+              presentation: "transparentModal",
+              animation: "fade",
+              title: "",
+              headerTransparent: true,
+              headerLeft: () => (
+                <TouchableOpacity onPress={router.back}>
+                  <Ionicons name="close-outline" size={34} color={"#fff"} />
+                </TouchableOpacity>
+              ),
+            }}
+          />
         </Stack>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

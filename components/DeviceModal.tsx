@@ -1,7 +1,5 @@
 import {
-  FlatList,
   ListRenderItemInfo,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,

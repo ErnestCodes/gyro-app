@@ -13,14 +13,10 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { LineChart } from "react-native-gifted-charts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useBLE from "@/hooks/useBle";
-import {
-  BottomSheetBackdrop,
-  BottomSheetModal,
-  BottomSheetModalProvider,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Speech from "expo-speech";
 import DeviceModal from "@/components/DeviceModal";
+import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
   const { top } = useSafeAreaInsets();
@@ -33,18 +29,26 @@ const HomeScreen = () => {
     allDevices,
     connectToDevice,
     connectedDevice,
-    data,
-    objectTemperature,
+    px,
+    py,
     obstacleDetected,
     movementStatus,
-    totalAcceleration,
+    caneHeld,
+    stepCount,
     // disconnectFromDevice,
   } = useBLE();
+  const router = useRouter();
 
   useEffect(() => {
-    if (obstacleDetected === "Yes") {
+    if (obstacleDetected === "Object detected") {
       Vibration.vibrate();
-      Speech.speak("Object Detected");
+      Speech.speak("Obstacle Detected");
+
+      const timeoutId = setTimeout(() => {
+        Speech.stop();
+      }, 2000);
+
+      return () => clearTimeout(timeoutId);
     } else {
       return;
     }
@@ -52,10 +56,9 @@ const HomeScreen = () => {
 
   const scanDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
-    // console.log(isPermissionsEnabled);
     if (isPermissionsEnabled) {
       scanForDevices();
-      bottomSheetModalRef.current?.present();
+      router.navigate("/(modals)/connect" as any);
     }
   };
 
@@ -104,7 +107,7 @@ const HomeScreen = () => {
         </Text>
         <View style={styles.reportWrapper}>
           <View style={styles.reportContent}>
-            <MaterialIcons name="directions-walk" size={35} color="black" />
+            <MaterialIcons name="directions-walk" size={24} color="black" />
             <View
               style={{
                 display: "flex",
@@ -113,7 +116,7 @@ const HomeScreen = () => {
               }}
             >
               <Text style={{ fontSize: 14, fontWeight: "500" }}>
-                {totalAcceleration}mph
+                {stepCount}mph
               </Text>
               <Text style={{ fontSize: 14, fontWeight: "300" }}>
                 {movementStatus}
@@ -122,7 +125,23 @@ const HomeScreen = () => {
           </View>
 
           <View style={styles.reportContent}>
-            <MaterialCommunityIcons name="fire" size={35} color="black" />
+            <MaterialCommunityIcons name="fire" size={24} color="black" />
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
+            >
+              <Text style={{ fontSize: 14, fontWeight: "500" }}>35 c</Text>
+              <Text style={{ fontSize: 14, fontWeight: "300" }}>
+                Temperature
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.reportContent}>
+            <MaterialIcons name="touch-app" size={24} color="black" />
             <View
               style={{
                 display: "flex",
@@ -131,29 +150,9 @@ const HomeScreen = () => {
               }}
             >
               <Text style={{ fontSize: 14, fontWeight: "500" }}>
-                {objectTemperature} c
+                {caneHeld === "Yes" ? "Cane Held" : "Not Held"}
               </Text>
-              <Text style={{ fontSize: 14, fontWeight: "300" }}>
-                Temperature
-              </Text>
-            </View>
-          </View>
-
-          <View style={styles.reportContent}>
-            <MaterialCommunityIcons
-              name="battery-high"
-              size={35}
-              color="black"
-            />
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-              }}
-            >
-              <Text style={{ fontSize: 14, fontWeight: "500" }}>58%</Text>
-              <Text style={{ fontSize: 14, fontWeight: "300" }}>Battery</Text>
+              <Text style={{ fontSize: 14, fontWeight: "300" }}>Status</Text>
             </View>
           </View>
         </View>
@@ -164,7 +163,7 @@ const HomeScreen = () => {
           </Text>
           <View style={{ marginTop: 5 }}>
             <LineChart
-              data={data}
+              data={[{ value: px }, { value: py }]}
               color={"#177AD5"}
               width={300}
               thickness={3}
