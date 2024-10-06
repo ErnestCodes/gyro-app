@@ -1,4 +1,5 @@
 import {
+  FlatList,
   ListRenderItemInfo,
   StyleSheet,
   Text,
@@ -7,7 +8,6 @@ import {
 } from "react-native";
 import React, { FC, useCallback } from "react";
 import { Device } from "@/hooks/useBle";
-import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
@@ -54,21 +54,27 @@ const DeviceModal = (props: DeviceModalProps) => {
 
   const emptyState = () => (
     <View>
-      <Text style={{ fontStyle: "italic" }}>No device found...</Text>
+      <Text style={{ fontStyle: "italic", color: "#fff" }}>
+        No device found...
+      </Text>
     </View>
   );
   return (
-    <BottomSheetFlatList
-      scrollEnabled={true}
-      contentContainerStyle={styles.modalFlatlistContiner}
-      showsVerticalScrollIndicator={false}
-      data={devices}
-      renderItem={renderDeviceModalListItem}
-      maxToRenderPerBatch={3}
-      ListEmptyComponent={emptyState}
-      keyExtractor={(item) => item.id}
-      windowSize={7}
-    />
+    <View
+      style={{
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <FlatList
+        contentContainerStyle={styles.modalFlatlistContiner}
+        data={devices}
+        renderItem={renderDeviceModalListItem}
+        ListEmptyComponent={emptyState}
+        scrollEnabled={true}
+      />
+    </View>
   );
 };
 

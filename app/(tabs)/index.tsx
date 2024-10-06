@@ -8,26 +8,19 @@ import {
   Vibration,
   View,
 } from "react-native";
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useEffect } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { LineChart } from "react-native-gifted-charts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useBLE from "@/hooks/useBle";
-import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
 import * as Speech from "expo-speech";
-import DeviceModal from "@/components/DeviceModal";
 import { useRouter } from "expo-router";
 
 const HomeScreen = () => {
   const { top } = useSafeAreaInsets();
-  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ["65%"], []);
   const {
     requestPermissions,
-    scanForDevices,
-    allDevices,
-    connectToDevice,
     connectedDevice,
     px,
     py,
@@ -35,7 +28,6 @@ const HomeScreen = () => {
     movementStatus,
     caneHeld,
     stepCount,
-    // disconnectFromDevice,
   } = useBLE();
   const router = useRouter();
 
@@ -57,23 +49,10 @@ const HomeScreen = () => {
   const scanDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
     if (isPermissionsEnabled) {
-      scanForDevices();
+      // scanForDevices();
       router.navigate("/(modals)/connect" as any);
     }
   };
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        opacity={0.2}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        {...props}
-        onPress={() => bottomSheetModalRef.current?.close()}
-      />
-    ),
-    []
-  );
 
   return (
     <ScrollView style={styles.container}>
@@ -205,29 +184,6 @@ const HomeScreen = () => {
           </TouchableOpacity>
         )}
       </View>
-      <BottomSheetModal
-        handleIndicatorStyle={{
-          width: 35,
-          backgroundColor: "#BAC3CC",
-        }}
-        handleStyle={{
-          backgroundColor: "#fff",
-          borderTopLeftRadius: 15,
-          borderTopRightRadius: 15,
-        }}
-        backdropComponent={renderBackdrop}
-        ref={bottomSheetModalRef}
-        snapPoints={snapPoints}
-        enableOverDrag={false}
-        index={0}
-        enablePanDownToClose={false}
-      >
-        <DeviceModal
-          connectToPeripheral={connectToDevice}
-          onCloseModal={() => bottomSheetModalRef?.current?.dismiss()}
-          devices={allDevices}
-        />
-      </BottomSheetModal>
     </ScrollView>
   );
 };

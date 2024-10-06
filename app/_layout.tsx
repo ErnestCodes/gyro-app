@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFonts } from "expo-font";
 import { Stack, useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -29,25 +28,23 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <BottomSheetModalProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="(modals)/connect"
-            options={{
-              presentation: "transparentModal",
-              animation: "fade",
-              title: "",
-              headerTransparent: true,
-              headerLeft: () => (
-                <TouchableOpacity onPress={router.back}>
-                  <Ionicons name="close-outline" size={34} color={"#fff"} />
-                </TouchableOpacity>
-              ),
-            }}
-          />
-        </Stack>
-      </BottomSheetModalProvider>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(modals)/connect"
+          options={{
+            presentation: "transparentModal",
+            animation: "fade",
+            title: "",
+            headerTransparent: true,
+            headerLeft: () => (
+              <TouchableOpacity onPress={router.back}>
+                <Ionicons name="close-outline" size={34} color={"#fff"} />
+              </TouchableOpacity>
+            ),
+          }}
+        />
+      </Stack>
     </GestureHandlerRootView>
   );
 }
