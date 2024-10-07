@@ -36,6 +36,7 @@ const HomeScreen = () => {
     scanForDevices,
     connectToDevice,
   } = useBLE();
+
   const router = useRouter();
 
   useEffect(() => {
