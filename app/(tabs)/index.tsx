@@ -40,7 +40,7 @@ const HomeScreen = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (obstacleDetected === "Object detected") {
+    if (obstacleDetected === "Yes") {
       Vibration.vibrate();
       Speech.speak("Obstacle Detected");
 
