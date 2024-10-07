@@ -197,7 +197,7 @@ const HomeScreen = () => {
         <CustomModal
           showCustomModal={showModal}
           setShowCustomModal={setShowModal}
-          height={"80%"}
+          height={"95%"}
           color="white"
           opacityNum={0.2}
         >
