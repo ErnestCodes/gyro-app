@@ -8,16 +8,20 @@ import {
   Vibration,
   View,
 } from "react-native";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { LineChart } from "react-native-gifted-charts";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import useBLE from "@/hooks/useBle";
 import * as Speech from "expo-speech";
 import { useRouter } from "expo-router";
+import CustomModal from "@/components/CustomModal";
+import DeviceModal from "@/components/DeviceModal";
 
 const HomeScreen = () => {
   const { top } = useSafeAreaInsets();
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [action, setAction] = useState<string>("Start scan");
 
   const {
     requestPermissions,
@@ -28,6 +32,9 @@ const HomeScreen = () => {
     movementStatus,
     caneHeld,
     stepCount,
+    allDevices,
+    scanForDevices,
+    connectToDevice,
   } = useBLE();
   const router = useRouter();
 
@@ -49,8 +56,9 @@ const HomeScreen = () => {
   const scanDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
     if (isPermissionsEnabled) {
-      // scanForDevices();
-      router.navigate("/(modals)/connect" as any);
+      scanForDevices();
+      setShowModal(true);
+      // router.navigate("/(modals)/connect" as any);
     }
   };
 
@@ -184,6 +192,41 @@ const HomeScreen = () => {
           </TouchableOpacity>
         )}
       </View>
+      {showModal && (
+        <CustomModal
+          showCustomModal={showModal}
+          setShowCustomModal={setShowModal}
+          height={"80%"}
+          color="white"
+          opacityNum={0.2}
+        >
+          {allDevices.length > 0 ? (
+            <DeviceModal
+              connectToPeripheral={connectToDevice}
+              onCloseModal={() => setShowModal(false)}
+              devices={allDevices}
+            />
+          ) : (
+            <View
+              style={{
+                paddingHorizontal: 10,
+                alignSelf: "center",
+                alignItems: "center",
+              }}
+            >
+              <TouchableOpacity
+                style={styles.btn}
+                onPress={() => {
+                  setAction("Scanning...");
+                  scanForDevices();
+                }}
+              >
+                <Text style={styles.btnPrimaryText}>{action}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </CustomModal>
+      )}
     </ScrollView>
   );
 };
