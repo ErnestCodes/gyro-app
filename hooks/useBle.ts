@@ -82,7 +82,7 @@ function useBle(): BluetoothClassicApi {
       );
       setConnectedDevice(device);
       listenForData(device);
-      Alert.alert("Device connected!");
+      // Alert.alert("Device connected!");
     } catch (error) {
       Alert.alert("Error connecting to device");
       console.log("Error connecting to device:", error);

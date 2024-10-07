@@ -204,7 +204,9 @@ const HomeScreen = () => {
           {allDevices.length > 0 ? (
             <DeviceModal
               connectToPeripheral={connectToDevice}
-              onCloseModal={() => setShowModal(false)}
+              onCloseModal={() => {
+                setShowModal(!showModal);
+              }}
               devices={allDevices}
             />
           ) : (
