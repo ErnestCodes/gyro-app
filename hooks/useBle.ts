@@ -109,18 +109,18 @@ function useBle(): BluetoothClassicApi {
   const processData = (rawData: string) => {
     try {
       const userInfo = JSON.parse(rawData);
-      let ax = Number(userInfo?.AccX);
-      let ay = Number(userInfo?.AccY);
+      let ax = Number(userInfo?.AccX) & 0x01;
+      let ay = Number(userInfo?.AccY) & 0x01;
 
       let aTotal = Math.sqrt(ax * ax + ay * ay);
 
       setObstacleDetected(userInfo?.obstacleDetected);
-      setPx(Number(userInfo?.positionX));
-      setPy(Number(userInfo?.positionY));
+      setPx(Number(userInfo?.positionX) & 0x01);
+      setPy(Number(userInfo?.positionY) & 0x01);
       setTotalAcceleration(aTotal);
-      setObjectTemperature(Number(userInfo?.objectTemperature));
+      setObjectTemperature(Number(userInfo?.objectTemperature) & 0x01);
       setCaneHeld(userInfo?.caneHeld as string);
-      setStepCount(Number(userInfo?.stepCount));
+      setStepCount(Number(userInfo?.stepCount) & 0x01);
       setMovementStatus(userInfo?.movement as string);
     } catch (error) {
       console.error("Error processing data:", error);
