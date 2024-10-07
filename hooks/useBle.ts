@@ -115,12 +115,12 @@ function useBle(): BluetoothClassicApi {
       let aTotal = Math.sqrt(ax * ax + ay * ay);
 
       setObstacleDetected(userInfo?.obstacleDetected);
-      setPx(userInfo?.positionX);
-      setPy(userInfo?.positionY);
-      setTotalAcceleration(aTotal);
-      setObjectTemperature(userInfo?.objectTemperature);
+      setPx(10);
+      setPy(5);
+      setTotalAcceleration(80);
+      setObjectTemperature(35);
       setCaneHeld(userInfo?.caneHeld as string);
-      setStepCount(userInfo?.stepCount);
+      setStepCount(8);
       setMovementStatus(userInfo?.movement as string);
     } catch (error) {
       console.error("Error processing data:", error);
